@@ -12,4 +12,13 @@ export class CountryService {
   public async getCountries(): Promise<CountryModel[]> {
     return this.countryRepository.find();
   }
+
+  public async removeCountry(id: number): Promise<boolean> {
+    const country = await this.countryRepository.findOneBy({ id });
+    if (country) {
+      await this.countryRepository.remove(country);
+      return true;
+    }
+    return false;
+  }
 }

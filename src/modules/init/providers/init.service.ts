@@ -2,34 +2,13 @@
 /* eslint-disable no-plusplus */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { hash } from 'bcryptjs';
-import * as crypto from 'crypto';
-import { ADMIN_ROLES } from 'src/constants';
-import { ConfigEntity, Country, Roles, User } from 'src/entity';
+import { Country } from 'src/entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class InitService {
-  constructor(
-    @InjectRepository(ConfigEntity) private configRepository: Repository<ConfigEntity>,
-    @InjectRepository(Country) private countryRepository: Repository<Country>,
-    @InjectRepository(Roles) private rolesRepository: Repository<Roles>,
-    @InjectRepository(User) private userRepository: Repository<User>,
-  ) {
-    void this.initConfig();
+  constructor(@InjectRepository(Country) private countryRepository: Repository<Country>) {
     void this.initCountry();
-    void this.initRoles();
-    void this.initAdmin();
-  }
-
-  public async initConfig(): Promise<void> {
-    const config = await this.configRepository.findOne({ where: { id: 1 } });
-    if (config) return;
-    const initConfig = new ConfigEntity();
-    initConfig.id = 1;
-    initConfig.mintingPhrase = new Date(Date.now());
-    initConfig.revealPhrase = new Date(Date.now() + 10 * 60 * 1000);
-    await this.configRepository.save(initConfig);
   }
 
   public async initCountry(): Promise<void> {
@@ -1033,35 +1012,6 @@ export class InitService {
         countryList.push(newCountry);
       }
       await this.countryRepository.save(countryList);
-    }
-  }
-
-  public async initRoles(): Promise<void> {
-    const check = await this.rolesRepository.find();
-    if (!check || check.length === 0) {
-      const admin = new Roles();
-      admin.id = ADMIN_ROLES;
-      await this.rolesRepository.save(admin);
-    }
-  }
-
-  public async initAdmin(): Promise<void> {
-    const userAdmin = await this.userRepository.find();
-    if (!userAdmin || userAdmin.length === 0) {
-      const username = 'admin';
-      const password = process.env['ADMIN_PASSWORD'] || '123456';
-      const email = 'admin@gmail.com';
-      const newUserAdmin = new User();
-      newUserAdmin.id = crypto.randomBytes(36).toString('hex').substr(1, 36);
-      newUserAdmin.name = username;
-      newUserAdmin.password = await hash(password, 10);
-      newUserAdmin.email = email;
-      const role = await this.rolesRepository.findOneBy({ id: ADMIN_ROLES });
-      if (role) {
-        newUserAdmin.roles.push(role);
-      }
-
-      await this.userRepository.save(newUserAdmin);
     }
   }
 }

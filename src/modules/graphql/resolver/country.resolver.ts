@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/require-await */
-import { Resolver, Query } from 'type-graphql';
+import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { CountryModel } from '../model';
 import { CountryService } from '../providers';
@@ -17,5 +17,10 @@ export class CountryResolver {
   @Query(() => [CountryModel])
   public async getCountries(): Promise<CountryModel[]> {
     return this.countryService.getCountries();
+  }
+
+  @Query(() => Boolean)
+  public async removeCountry(@Args('id', { type: () => ID }) id: number): Promise<boolean> {
+    return this.countryService.removeCountry(id);
   }
 }

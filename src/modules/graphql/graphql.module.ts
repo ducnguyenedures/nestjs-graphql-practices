@@ -5,6 +5,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Country } from 'src/entity';
 
+import { CountryModel } from './model';
 import { CountryService } from './providers';
 import { CountryResolver } from './resolver';
 
@@ -13,6 +14,7 @@ import { CountryResolver } from './resolver';
  */
 @Module({
   imports: [
+    CountryModel,
     GraphQLModule.forRootAsync({
       driver: ApolloDriver,
       useFactory: async (config: ConfigService) => ({
@@ -24,4 +26,4 @@ import { CountryResolver } from './resolver';
   ],
   providers: [CountryResolver, CountryService],
 })
-export class CountryModule {}
+export class GraphqlModule {}

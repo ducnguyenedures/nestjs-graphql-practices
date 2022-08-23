@@ -1,12 +1,11 @@
 /* eslint-disable no-console */
-import { ValidationPipe, BadGatewayException } from '@nestjs/common';
+import { BadGatewayException, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationError } from 'class-validator';
 import { WinstonModule } from 'nest-winston';
 import winston from 'winston';
 
-import { RedisIoAdapter } from './adapter';
 import { middleware } from './app.middleware';
 import { AppModule } from './app.module';
 
@@ -54,11 +53,6 @@ async function bootstrap(): Promise<void> {
   if (isProduction) {
     app.enable('trust proxy');
   }
-  // Redis Adapter
-  const redisIoAdapter = new RedisIoAdapter(app);
-  await redisIoAdapter.connectToRedis();
-
-  app.useWebSocketAdapter(redisIoAdapter);
   // Express Middleware
   middleware(app);
   await app.listen(process.env.PORT || 3001);
